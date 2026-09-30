@@ -23,26 +23,21 @@
   color-scheme: dark;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;overflow:hidden;}
+html,body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;}
+body{overflow-x:hidden;}
 
-#deck{width:100%;height:100%;display:flex;flex-direction:column;}
-#prog-wrap{flex-shrink:0;height:3px;background:var(--border);margin-top:env(safe-area-inset-top,0px);}
-#prog-fill{height:3px;background:linear-gradient(90deg,var(--purple),var(--violet));width:10%;transition:width .4s ease;}
-#viewport{flex:1;overflow:hidden;}
-#track{display:flex;height:100%;transition:transform .38s cubic-bezier(.4,0,.2,1);will-change:transform;}
-.slide{flex-shrink:0;width:100vw;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:40px 60px 32px;display:flex;flex-direction:column;}
-#nav{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--border);}
-.nb{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--off);font-family:'DM Sans',sans-serif;font-size:16px;padding:10px 24px;cursor:pointer;transition:border-color .2s,background .2s;}
-.nb:hover{border-color:var(--purple);background:var(--card);}
-.nb:disabled{opacity:.22;cursor:default;}
-#ctr{font-family:'Syne',sans-serif;font-size:16px;color:var(--muted);font-weight:700;min-width:48px;text-align:center;}
+#prog-wrap{position:fixed;top:0;left:0;right:0;height:3px;background:var(--border);z-index:100;}
+#prog-fill{height:3px;background:linear-gradient(90deg,var(--purple),var(--violet));width:0%;transition:width .2s ease;}
+#deck{display:flex;flex-direction:column;}
+.slide{width:100%;min-height:100vh;padding:60px 60px 60px;display:flex;flex-direction:column;border-bottom:1px solid var(--border);}
+.slide:last-child{border-bottom:none;}
 
 /* Typography */
 .ey{font-size:13px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);margin-bottom:14px;}
 .h1{font-family:'Syne',sans-serif;font-weight:800;line-height:1.05;text-wrap:balance;}
-.xl{font-size:clamp(42px,5vw,72px);margin-bottom:10px;}
-.lg{font-size:clamp(34px,4vw,56px);margin-bottom:10px;}
-.md{font-size:clamp(26px,3vw,40px);margin-bottom:10px;}
+.xl{font-size:clamp(36px,4vw,52px);margin-bottom:10px;}
+.lg{font-size:clamp(28px,3.2vw,42px);margin-bottom:10px;}
+.md{font-size:clamp(22px,2.5vw,32px);margin-bottom:10px;}
 .sub{font-size:20px;color:var(--off);line-height:1.6;margin-bottom:20px;}
 .mu{font-size:17px;color:var(--muted);line-height:1.5;}
 
@@ -169,8 +164,7 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:'DM Sa
 <body>
 <div id="deck">
   <div id="prog-wrap"><div id="prog-fill"></div></div>
-  <div id="viewport">
-    <div id="track">
+
 
       <!-- 1. WHO WE ARE -->
       <div class="slide">
@@ -206,12 +200,6 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:'DM Sa
           <div class="gap-label">The Gap. And it's massive.</div>
           <div class="gap-text">Everyday players want to compete for something meaningful.</div>
           <div class="gap-sub">They're already doing it. Discord servers, Instagram tournaments, Facebook groups. Millions of players running their own competitions because no unified platform exists.</div>
-        </div>
-        <div class="evidence" style="margin-top:16px;">
-          <span class="ev-badge">Discord tournaments</span>
-          <span class="ev-badge">Instagram competitions</span>
-          <span class="ev-badge">Facebook gaming groups</span>
-          <span class="ev-badge">Online brackets</span>
         </div>
       </div>
 
@@ -472,7 +460,7 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:'DM Sa
       <!-- 9. MARKET -->
       <div class="slide">
         <div class="ey">Market</div>
-        <div class="h1 lg" style="margin-bottom:6px;">Big market.<br>Clear wedge.<br>Room to expand.</div>
+        <div class="h1 lg" style="margin-bottom:6px;">Big market.<br>Clear entry.<br>Room to grow.</div>
 
         <div class="funnel" style="margin:12px 0;">
           <div class="fn fn1">
@@ -541,51 +529,29 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:'DM Sa
 
     </div>
   </div>
-  <div id="nav">
-    <button class="nb" id="prev">&#8592; Prev</button>
-    <div id="ctr">1 / 10</div>
-    <button class="nb" id="next">Next &#8594;</button>
-  </div>
 </div>
 
 <script>
 (function(){
-  const TOTAL=10;let cur=0,sx=0,drag=false;
-  const track=document.getElementById('track'),
-        ctr=document.getElementById('ctr'),
-        prev=document.getElementById('prev'),
-        next=document.getElementById('next'),
-        fill=document.getElementById('prog-fill'),
-        vp=document.getElementById('viewport');
-  function go(n){
-    n=Math.max(0,Math.min(TOTAL-1,n));cur=n;
-    track.style.transform='translateX(-'+(n*100)+'vw)';
-    ctr.textContent=(n+1)+' / '+TOTAL;
-    fill.style.width=((n+1)/TOTAL*100)+'%';
-    prev.disabled=n===0;next.disabled=n===TOTAL-1;
-    if(n===7)bars();
-    document.querySelectorAll('.slide')[n].scrollTop=0;
-  }
-  function bars(){
-    const b1=document.getElementById('b1'),b2=document.getElementById('b2');
-    if(!b1||!b2)return;
-    b1.style.height='0';b2.style.height='0';
-    setTimeout(()=>{b1.style.height='64px';b2.style.height='128px';},100);
-  }
-  prev.addEventListener('click',()=>go(cur-1));
-  next.addEventListener('click',()=>go(cur+1));
-  document.addEventListener('keydown',e=>{
-    if(e.key==='ArrowRight'||e.key==='ArrowDown')go(cur+1);
-    if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(cur-1);
-  });
-  vp.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;drag=true;},{passive:true});
-  vp.addEventListener('touchend',e=>{
-    if(!drag)return;
-    const dx=e.changedTouches[0].clientX-sx;
-    if(Math.abs(dx)>42)go(dx<0?cur+1:cur-1);
-    drag=false;
+  const fill=document.getElementById('prog-fill');
+  // Progress bar based on scroll position
+  window.addEventListener('scroll',()=>{
+    const pct=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+    fill.style.width=Math.min(100,pct)+'%';
   },{passive:true});
-  go(0);
+  // Trigger bar animation when slide 8 (traction) scrolls into view
+  const traction=document.querySelectorAll('.slide')[7];
+  let barsAnimated=false;
+  if(traction){
+    const obs=new IntersectionObserver(entries=>{
+      if(entries[0].isIntersecting&&!barsAnimated){
+        barsAnimated=true;
+        const b1=document.getElementById('b1'),b2=document.getElementById('b2');
+        if(b1&&b2){b1.style.height='0';b2.style.height='0';setTimeout(()=>{b1.style.height='64px';b2.style.height='128px';},100);}
+      }
+    },{threshold:0.3});
+    obs.observe(traction);
+  }
 })();
 </script>
 </body>
